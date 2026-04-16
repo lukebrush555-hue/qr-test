@@ -59,42 +59,44 @@
         return;
       }
 
-      // 4. Map users
-      const userMap = {};
-      users.forEach(u => userMap[u.id] = u);
-
-      // 5. Group interactions by user
+      // 4. Group by PHONE (🔥 key change)
       const grouped = {};
 
       interactions.forEach(i => {
-        if (!grouped[i.user_id]) {
-          grouped[i.user_id] = {
+        const user = users.find(u => u.id === i.user_id);
+        if (!user || !user.phone) return;
+
+        const phone = user.phone;
+
+        if (!grouped[phone]) {
+          grouped[phone] = {
+            name: user.name,
+            phone: phone,
             first_seen: i.created_at,
             last_seen: i.created_at,
             count: 1
           };
         } else {
-          grouped[i.user_id].last_seen = i.created_at;
-          grouped[i.user_id].count++;
+          grouped[phone].last_seen = i.created_at;
+          grouped[phone].count++;
+
+          // Optional: prefer latest name if different
+          grouped[phone].name = user.name || grouped[phone].name;
         }
       });
 
-      // 6. Render
+      // 5. Render
       let html = "";
 
-      Object.keys(grouped).forEach(user_id => {
-        const user = userMap[user_id];
-        if (!user) return;
-
-        const g = grouped[user_id];
+      Object.values(grouped).forEach(g => {
 
         const first = new Date(g.first_seen).toLocaleString();
         const last = new Date(g.last_seen).toLocaleString();
 
         html += `
           <div style="padding:12px; border-bottom:1px solid #ccc;">
-            <strong>${user.name || "No name"}</strong><br>
-            ${user.phone || ""}<br><br>
+            <strong>${g.name || "No name"}</strong><br>
+            ${g.phone}<br><br>
 
             <small>
               First seen: ${first}<br>
