@@ -5,33 +5,29 @@
   <title>Share Info</title>
 </head>
 
-<body style="font-family:sans-serif; text-align:center; padding:40px;">
+<body style="font-family:sans-serif; text-align:center; padding:30px;">
 
-  <h2>Choose what to share</h2>
+  <h2>Save contact. No typing again.</h2>
 
   <br>
 
+  <input id="name" placeholder="Full name"
+    style="padding:12px; font-size:16px; width:240px;"><br><br>
+
   <input id="phone" placeholder="Phone number"
-    style="padding:12px; font-size:16px; width:220px;"
+    style="padding:12px; font-size:16px; width:240px;"
     inputmode="numeric"
-    oninput="formatPhone(this)">
+    oninput="formatPhone(this)"><br><br>
 
-  <br><br>
+  <input id="email" placeholder="Email"
+    style="padding:12px; font-size:16px; width:240px;"><br><br>
 
-  <input id="email" placeholder="Email (optional)"
-    style="padding:12px; font-size:16px; width:220px;">
-
-  <br><br>
-
-  <div style="text-align:left; display:inline-block;">
-    <label><input type="checkbox" id="sharePhone" checked> Share phone</label><br>
-    <label><input type="checkbox" id="shareEmail"> Share email</label>
-  </div>
-
-  <br><br>
+  <input id="zip" placeholder="Zip code"
+    style="padding:12px; font-size:16px; width:240px;"
+    inputmode="numeric"><br><br>
 
   <button onclick="save()"
-    style="padding:12px 20px; font-size:16px;">
+    style="padding:14px 24px; font-size:16px;">
     Continue
   </button>
 
@@ -48,30 +44,19 @@
     }
 
     function save() {
-      const phoneRaw = document.getElementById("phone").value;
-      const phone = phoneRaw.replace(/\D/g, "");
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value.replace(/\D/g, "");
       const email = document.getElementById("email").value;
+      const zip = document.getElementById("zip").value;
 
-      const sharePhone = document.getElementById("sharePhone").checked;
-      const shareEmail = document.getElementById("shareEmail").checked;
-
-      if (!sharePhone && !shareEmail) {
-        alert("Select at least one option");
-        return;
-      }
-
-      if (sharePhone && phone.length < 10) {
-        alert("Enter a valid phone number");
+      if (!name || !phone) {
+        alert("Name and phone required");
         return;
       }
 
       localStorage.setItem("user", JSON.stringify({
-        phone: phone,
-        email: email
+        name, phone, email, zip
       }));
-
-      localStorage.setItem("sharePhone", sharePhone);
-      localStorage.setItem("shareEmail", shareEmail);
 
       window.location.href = "action.html";
     }
