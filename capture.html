@@ -2,19 +2,61 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TEST</title>
+  <title>Capture</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
 
-  <h1>IF YOU SEE THIS, CODE UPDATED</h1>
+  <h2>TEST SAVE</h2>
 
-  <button onclick="test()">CLICK ME</button>
+  <input id="name" placeholder="Name"><br><br>
+  <input id="phone" placeholder="Phone"><br><br>
+
+  <button id="btn">Save</button>
 
   <script>
-    function test() {
-      alert("JS IS RUNNING");
-    }
+    // 🔴 PASTE YOUR REAL VALUES HERE
+    const SUPABASE_URL = "PASTE_URL_HERE";
+    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+
+    console.log("Creating client...");
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    console.log("Client created:", client);
+
+    document.getElementById("btn").addEventListener("click", async () => {
+
+      alert("CLICK REGISTERED");
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+
+      console.log("Sending:", { name, phone });
+
+      try {
+        const { data, error } = await client
+          .from("users")
+          .insert([{ name, phone }])
+          .select();
+
+        console.log("Response:", data, error);
+
+        if (error) {
+          alert("ERROR: " + error.message);
+          return;
+        }
+
+        alert("SUCCESS");
+
+      } catch (err) {
+        alert("CRASH: " + err.message);
+        console.error(err);
+      }
+
+    });
   </script>
 
 </body>
