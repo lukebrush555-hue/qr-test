@@ -17,15 +17,15 @@
   <button onclick="save()">Continue</button>
 
   <script>
-    const SUPABASE_URL = "PASTE_URL_HERE";
-    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
-
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const params = new URLSearchParams(window.location.search);
-    const client_id = params.get("client") || "default";
-
     async function save() {
+
+      const SUPABASE_URL = "PASTE_URL_HERE";
+      const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const params = new URLSearchParams(window.location.search);
+      const client_id = params.get("client") || "default";
 
       const name = document.getElementById("name").value;
       const phone = document.getElementById("phone").value;
@@ -36,8 +36,7 @@
       }
 
       try {
-        // 1. Save user
-        const { data, error } = await client
+        const { data, error } = await supabaseClient
           .from("users")
           .insert([{ name, phone }])
           .select();
@@ -50,14 +49,12 @@
         const user_id = data[0].id;
         localStorage.setItem("user_id", user_id);
 
-        // 2. Log FIRST interaction immediately
-        await client.from("interactions").insert([{
+        await supabaseClient.from("interactions").insert([{
           user_id: user_id,
           client_id: client_id,
           fields_shared: {}
         }]);
 
-        // 3. Continue
         window.location.href = "action.html";
 
       } catch (e) {
