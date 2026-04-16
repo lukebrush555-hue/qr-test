@@ -5,7 +5,6 @@
   <title>Share Info</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase.js"></script>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:30px;">
@@ -35,6 +34,12 @@
   </button>
 
   <script>
+    // 🔑 REPLACE THESE
+    const SUPABASE_URL = "YOUR_PROJECT_URL";
+    const SUPABASE_KEY = "YOUR_ANON_KEY";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     function formatPhone(input) {
       let numbers = input.value.replace(/\D/g, "").slice(0, 10);
 
@@ -74,6 +79,7 @@
 
         alert("Saved successfully");
         window.location.href = "action.html";
+
       } catch (e) {
         alert("Crash: " + e.message);
         console.error(e);
