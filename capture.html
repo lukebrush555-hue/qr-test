@@ -14,45 +14,39 @@
   <input id="name" placeholder="Name"><br><br>
   <input id="phone" placeholder="Phone"><br><br>
 
-  <button id="btn">Save</button>
+  <button onclick="save()">Save</button>
 
   <script>
-    window.onload = function () {
+    alert("PAGE LOADED");
 
-      alert("PAGE LOADED");
+    const SUPABASE_URL = "PASTE_URL_HERE";
+    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
 
-      const SUPABASE_URL = "PASTE_URL_HERE";
-      const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    async function save() {
+      alert("CLICK REGISTERED");
 
-      document.getElementById("btn").addEventListener("click", async function () {
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
 
-        alert("CLICK REGISTERED");
+      try {
+        const { data, error } = await client
+          .from("users")
+          .insert([{ name, phone }])
+          .select();
 
-        const name = document.getElementById("name").value;
-        const phone = document.getElementById("phone").value;
-
-        try {
-          const { data, error } = await client
-            .from("users")
-            .insert([{ name, phone }])
-            .select();
-
-          if (error) {
-            alert("ERROR: " + error.message);
-            return;
-          }
-
-          alert("SUCCESS");
-
-        } catch (e) {
-          alert("CRASH: " + e.message);
+        if (error) {
+          alert("ERROR: " + error.message);
+          return;
         }
 
-      });
+        alert("SUCCESS");
 
-    };
+      } catch (e) {
+        alert("CRASH: " + e.message);
+      }
+    }
   </script>
 
 </body>
