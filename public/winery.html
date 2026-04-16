@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Free Wine Upgrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family:sans-serif; text-align:center; padding:40px;">
+  <h1>🍷 Free Upgrade</h1>
+  <p>Enter your phone number to unlock a premium tasting</p>
+
+  <input id="phone" placeholder="Your phone number" style="padding:10px; width:200px;"><br><br>
+
+  <button onclick="submitForm()" style="padding:10px 20px;">Unlock</button>
+
+  <p id="status"></p>
+
+  <script>
+    function submitForm() {
+      let phone = document.getElementById("phone").value;
+      document.getElementById("status").innerText =
+        "You're in. Check your phone.";
+      console.log("Captured:", phone);
+    }
+  </script>
+</body>
+</html>
