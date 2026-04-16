@@ -2,12 +2,12 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Save Contact</title>
+  <title>Share Info</title>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
 
-  <h2>Save contact. No typing again.</h2>
+  <h2>Choose what to share</h2>
 
   <br>
 
@@ -15,6 +15,18 @@
     style="padding:12px; font-size:16px; width:220px;"
     inputmode="numeric"
     oninput="formatPhone(this)">
+
+  <br><br>
+
+  <input id="email" placeholder="Email (optional)"
+    style="padding:12px; font-size:16px; width:220px;">
+
+  <br><br>
+
+  <div style="text-align:left; display:inline-block;">
+    <label><input type="checkbox" id="sharePhone" checked> Share phone</label><br>
+    <label><input type="checkbox" id="shareEmail"> Share email</label>
+  </div>
 
   <br><br>
 
@@ -28,30 +40,38 @@
       let numbers = input.value.replace(/\D/g, "").slice(0, 10);
 
       let formatted = "";
-
-      if (numbers.length > 0) {
-        formatted = numbers.substring(0, 3);
-      }
-      if (numbers.length >= 4) {
-        formatted += "-" + numbers.substring(3, 6);
-      }
-      if (numbers.length >= 7) {
-        formatted += "-" + numbers.substring(6, 10);
-      }
+      if (numbers.length > 0) formatted = numbers.substring(0, 3);
+      if (numbers.length >= 4) formatted += "-" + numbers.substring(3, 6);
+      if (numbers.length >= 7) formatted += "-" + numbers.substring(6, 10);
 
       input.value = formatted;
     }
 
     function save() {
-      const raw = document.getElementById("phone").value;
-      const phone = raw.replace(/\D/g, "");
+      const phoneRaw = document.getElementById("phone").value;
+      const phone = phoneRaw.replace(/\D/g, "");
+      const email = document.getElementById("email").value;
 
-      if (phone.length < 10) {
+      const sharePhone = document.getElementById("sharePhone").checked;
+      const shareEmail = document.getElementById("shareEmail").checked;
+
+      if (!sharePhone && !shareEmail) {
+        alert("Select at least one option");
+        return;
+      }
+
+      if (sharePhone && phone.length < 10) {
         alert("Enter a valid phone number");
         return;
       }
 
-      localStorage.setItem("user", phone);
+      localStorage.setItem("user", JSON.stringify({
+        phone: phone,
+        email: email
+      }));
+
+      localStorage.setItem("sharePhone", sharePhone);
+      localStorage.setItem("shareEmail", shareEmail);
 
       window.location.href = "action.html";
     }
