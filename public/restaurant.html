@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secret Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family:sans-serif; text-align:center; padding:40px;">
+  <h1>🍔 Secret Menu</h1>
+  <p>Enter your phone to access hidden items</p>
+
+  <input id="phone" placeholder="Your phone number" style="padding:10px; width:200px;"><br><br>
+
+  <button onclick="submitForm()" style="padding:10px 20px;">Enter</button>
+
+  <p id="status"></p>
+
+  <script>
+    function submitForm() {
+      let phone = document.getElementById("phone").value;
+      document.getElementById("status").innerText =
+        "Access granted.";
+      console.log("Captured:", phone);
+    }
+  </script>
+</body>
+</html>
