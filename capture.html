@@ -2,64 +2,84 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capture</title>
+  <title>Save Info</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
 
-  <h2>Enter your info</h2>
+  <h2 id="title">Save your info</h2>
 
   <input id="name" placeholder="Name"><br><br>
   <input id="phone" placeholder="Phone"><br><br>
 
-  <button onclick="save()">Continue</button>
+  <div id="notes-label" style="margin-bottom:5px;">Notes</div>
+  <textarea id="notes" style="width:80%; height:80px;"></textarea><br><br>
+
+  <button onclick="save()">Save</button>
 
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const client_id = params.get("client") || "default";
+
+    // 🔥 Dynamic labels
+    let title = "Save your info";
+    let label = "Notes";
+    let placeholder = "Add any preferences...";
+
+    if (client_id === "barber") {
+      title = "Save your haircut for next time";
+      label = "Haircut Notes";
+      placeholder = "4 on top, 1 on sides...";
+    }
+
+    if (client_id === "flower") {
+      title = "Save your order preferences";
+      label = "Occasion / Preferences";
+      placeholder = "Birthday, anniversary, etc...";
+    }
+
+    document.getElementById("title").innerText = title;
+    document.getElementById("notes-label").innerText = label;
+    document.getElementById("notes").placeholder = placeholder;
+
     async function save() {
 
       const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
       const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
 
-      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      const params = new URLSearchParams(window.location.search);
-      const client_id = params.get("client") || "default";
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       const name = document.getElementById("name").value;
       const phone = document.getElementById("phone").value;
+      const notes = document.getElementById("notes").value;
 
       if (!name || !phone) {
         alert("Enter required fields");
         return;
       }
 
-      try {
-        const { data, error } = await supabaseClient
-          .from("users")
-          .insert([{ name, phone }])
-          .select();
+      const { data, error } = await client
+        .from("users")
+        .insert([{ name, phone, notes }])
+        .select();
 
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        const user_id = data[0].id;
-        localStorage.setItem("user_id", user_id);
-
-        await supabaseClient.from("interactions").insert([{
-          user_id: user_id,
-          client_id: client_id,
-          fields_shared: {}
-        }]);
-
-        window.location.href = "action.html";
-
-      } catch (e) {
-        alert("Error: " + e.message);
+      if (error) {
+        alert(error.message);
+        return;
       }
+
+      const user_id = data[0].id;
+      localStorage.setItem("user_id", user_id);
+
+      await client.from("interactions").insert([{
+        user_id,
+        client_id,
+        fields_shared: {}
+      }]);
+
+      window.location.href = "action.html";
     }
   </script>
 
