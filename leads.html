@@ -11,78 +11,96 @@
 
   <h2 id="title">Leads</h2>
 
-  <div id="list">Starting...</div>
+  <div id="list">Loading...</div>
 
   <script>
     async function loadLeads() {
 
-      document.getElementById("list").innerText = "Step 1: Init";
-
       const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
       const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
 
-      document.getElementById("list").innerText = "Step 2: Creating client";
-
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      document.getElementById("list").innerText = "Step 3: Reading URL";
 
       const params = new URLSearchParams(window.location.search);
       const client_id = params.get("client") || "default";
 
       document.getElementById("title").innerText = "Leads: " + client_id;
 
-      document.getElementById("list").innerText = "Step 4: Fetching interactions";
-
+      // 1. Get interactions
       const { data: interactions, error: iError } = await client
         .from("interactions")
         .select("*")
-        .eq("client_id", client_id);
+        .eq("client_id", client_id)
+        .order("created_at", { ascending: true });
 
       if (iError) {
-        document.getElementById("list").innerText = "ERROR interactions: " + iError.message;
+        document.getElementById("list").innerText = iError.message;
         return;
       }
-
-      document.getElementById("list").innerText = "Step 5: Found " + interactions.length + " interactions";
 
       if (!interactions.length) {
         document.getElementById("list").innerText = "No leads yet";
         return;
       }
 
-      const userIds = interactions.map(i => i.user_id);
+      // 2. Get unique user IDs
+      const userIds = [...new Set(
+        interactions.map(i => i.user_id).filter(Boolean)
+      )];
 
-      document.getElementById("list").innerText = "Step 6: Fetching users";
-
+      // 3. Fetch users
       const { data: users, error: uError } = await client
         .from("users")
         .select("*")
         .in("id", userIds);
 
       if (uError) {
-        document.getElementById("list").innerText = "ERROR users: " + uError.message;
+        document.getElementById("list").innerText = uError.message;
         return;
       }
 
-      document.getElementById("list").innerText = "Step 7: Rendering";
-
+      // 4. Map users
       const userMap = {};
       users.forEach(u => userMap[u.id] = u);
 
-      let html = "";
+      // 5. Group interactions by user
+      const grouped = {};
 
       interactions.forEach(i => {
-        const user = userMap[i.user_id];
+        if (!grouped[i.user_id]) {
+          grouped[i.user_id] = {
+            first_seen: i.created_at,
+            last_seen: i.created_at,
+            count: 1
+          };
+        } else {
+          grouped[i.user_id].last_seen = i.created_at;
+          grouped[i.user_id].count++;
+        }
+      });
+
+      // 6. Render
+      let html = "";
+
+      Object.keys(grouped).forEach(user_id => {
+        const user = userMap[user_id];
         if (!user) return;
 
-        const time = new Date(i.created_at).toLocaleString();
+        const g = grouped[user_id];
+
+        const first = new Date(g.first_seen).toLocaleString();
+        const last = new Date(g.last_seen).toLocaleString();
 
         html += `
-          <div style="padding:10px; border-bottom:1px solid #ccc;">
+          <div style="padding:12px; border-bottom:1px solid #ccc;">
             <strong>${user.name || "No name"}</strong><br>
-            ${user.phone || ""}<br>
-            <small>${time}</small>
+            ${user.phone || ""}<br><br>
+
+            <small>
+              First seen: ${first}<br>
+              Last seen: ${last}<br>
+              Visits: ${g.count}
+            </small>
           </div>
         `;
       });
