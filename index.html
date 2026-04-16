@@ -4,20 +4,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loading...</title>
 
-  <script>
-    window.onload = function() {
-      const user = localStorage.getItem("user");
-
-      if (user) {
-        window.location.href = "action.html";
-      } else {
-        window.location.href = "capture.html";
-      }
-    };
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
+
   <p>Loading...</p>
+
+  <script>
+    const SUPABASE_URL = "PASTE_URL_HERE";
+    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function init() {
+
+      // 1. Get client_id from URL
+      const params = new URLSearchParams(window.location.search);
+      const client_id = params.get("client") || "default";
+
+      // 2. Check if user exists locally
+      let user_id = localStorage.getItem("user_id");
+
+      if (!user_id) {
+        // First-time user → go to capture
+        window.location.href = "capture.html?client=" + client_id;
+        return;
+      }
+
+      // 3. Log interaction
+      try {
+        const { error } = await client
+          .from("interactions")
+          .insert([{
+            user_id: user_id,
+            client_id: client_id,
+            fields_shared: {}
+          }]);
+
+        if (error) {
+          console.error("Interaction error:", error);
+        }
+
+      } catch (e) {
+        console.error("Crash:", e);
+      }
+
+      // 4. Continue to action
+      window.location.href = "action.html";
+    }
+
+    init();
+  </script>
+
 </body>
 </html>
