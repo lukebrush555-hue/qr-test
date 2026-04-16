@@ -2,38 +2,37 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Saving Contact...</title>
+  <title>Save Contact</title>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
 
-  <h2>Saving contact...</h2>
-  <p>If nothing happens, tap below.</p>
+  <h2>Save contact</h2>
+  <p>Tap below to save</p>
 
   <br>
 
   <button onclick="downloadVCF()"
-    style="padding:15px 25px; font-size:18px;">
+    style="padding:16px 26px; font-size:18px;">
     Save Contact
   </button>
 
   <script>
     function downloadVCF() {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const sharePhone = localStorage.getItem("sharePhone") === "true";
-      const shareEmail = localStorage.getItem("shareEmail") === "true";
 
       let vcf = "BEGIN:VCARD\nVERSION:3.0\n";
-      vcf += "FN:Alex Mercer\nORG:Handshake Labs\n";
+      vcf += "FN:" + (user.name || "") + "\n";
 
-      if (sharePhone && user.phone) {
+      if (user.phone) {
         vcf += "TEL;TYPE=CELL:" + user.phone + "\n";
       }
 
-      if (shareEmail && user.email) {
+      if (user.email) {
         vcf += "EMAIL:" + user.email + "\n";
       }
 
+      vcf += "NOTE:ZIP " + (user.zip || "") + "\n";
       vcf += "END:VCARD";
 
       const blob = new Blob([vcf], { type: "text/vcard" });
@@ -41,16 +40,12 @@
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = "contact_" + Date.now() + ".vcf";
+      a.download = "contact.vcf";
 
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     }
-
-    window.onload = function() {
-      downloadVCF();
-    };
   </script>
 
 </body>
