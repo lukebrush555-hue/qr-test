@@ -29,11 +29,23 @@
         return;
       }
 
+      // 🔴 NEW: prevent duplicate logs
+      const last_client = localStorage.getItem("last_client");
+
+      if (last_client === client_id) {
+        window.location.href = "action.html";
+        return;
+      }
+
+      // Log interaction
       await client.from("interactions").insert([{
         user_id: user_id,
         client_id: client_id,
         fields_shared: {}
       }]);
+
+      // Save last interaction
+      localStorage.setItem("last_client", client_id);
 
       window.location.href = "action.html";
     }
