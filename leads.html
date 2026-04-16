@@ -11,9 +11,15 @@
 
   <h2 id="title">Leads</h2>
 
+  <button onclick="downloadCSV()" style="margin-bottom:20px;">
+    Download CSV
+  </button>
+
   <div id="list">Loading...</div>
 
   <script>
+    let exportData = [];
+
     async function loadLeads() {
 
       const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
@@ -26,40 +32,19 @@
 
       document.getElementById("title").innerText = "Leads: " + client_id;
 
-      // 1. Get interactions
-      const { data: interactions, error: iError } = await client
+      const { data: interactions } = await client
         .from("interactions")
         .select("*")
         .eq("client_id", client_id)
         .order("created_at", { ascending: true });
 
-      if (iError) {
-        document.getElementById("list").innerText = iError.message;
-        return;
-      }
+      const userIds = [...new Set(interactions.map(i => i.user_id))];
 
-      if (!interactions.length) {
-        document.getElementById("list").innerText = "No leads yet";
-        return;
-      }
-
-      // 2. Get unique user IDs
-      const userIds = [...new Set(
-        interactions.map(i => i.user_id).filter(Boolean)
-      )];
-
-      // 3. Fetch users
-      const { data: users, error: uError } = await client
+      const { data: users } = await client
         .from("users")
         .select("*")
         .in("id", userIds);
 
-      if (uError) {
-        document.getElementById("list").innerText = uError.message;
-        return;
-      }
-
-      // 4. Group by PHONE (🔥 key change)
       const grouped = {};
 
       interactions.forEach(i => {
@@ -72,6 +57,7 @@
           grouped[phone] = {
             name: user.name,
             phone: phone,
+            email: user.email || "",
             first_seen: i.created_at,
             last_seen: i.created_at,
             count: 1
@@ -79,20 +65,18 @@
         } else {
           grouped[phone].last_seen = i.created_at;
           grouped[phone].count++;
-
-          // Optional: prefer latest name if different
-          grouped[phone].name = user.name || grouped[phone].name;
         }
       });
 
-      // 5. Render
       let html = "";
+      exportData = [];
 
       Object.values(grouped).forEach(g => {
 
         const first = new Date(g.first_seen).toLocaleString();
         const last = new Date(g.last_seen).toLocaleString();
 
+        // UI
         html += `
           <div style="padding:12px; border-bottom:1px solid #ccc;">
             <strong>${g.name || "No name"}</strong><br>
@@ -105,9 +89,37 @@
             </small>
           </div>
         `;
+
+        // CSV data
+        exportData.push([
+          g.name || "",
+          g.phone,
+          g.email,
+          client_id,
+          first,
+          last,
+          g.count
+        ]);
       });
 
       document.getElementById("list").innerHTML = html;
+    }
+
+    function downloadCSV() {
+
+      let csv = "Name,Phone,Email,Source,First Seen,Last Seen,Visits\n";
+
+      exportData.forEach(row => {
+        csv += row.map(val => `"${val}"`).join(",") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "leads.csv";
+      a.click();
     }
 
     loadLeads();
