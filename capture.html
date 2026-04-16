@@ -2,47 +2,111 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Save Info</title>
+  <title>Save Your Info</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+
+    textarea {
+      height: 80px;
+      resize: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      opacity: 0.95;
+    }
+
+    .label {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+  </style>
 </head>
 
-<body style="font-family:sans-serif; text-align:center; padding:40px;">
+<body>
 
-  <h2 id="title">Save your info</h2>
+  <div class="card">
+    <h2 id="title">Save your info</h2>
 
-  <input id="name" placeholder="Name"><br><br>
-  <input id="phone" placeholder="Phone"><br><br>
+    <input id="name" placeholder="Name">
+    <input id="phone" placeholder="Phone">
 
-  <div id="notes-label" style="margin-bottom:5px;">Notes</div>
-  <textarea id="notes" style="width:80%; height:80px;"></textarea><br><br>
+    <div id="notes-label" class="label">Notes</div>
+    <textarea id="notes"></textarea>
 
-  <button onclick="save()">Save</button>
+    <button onclick="save()">Save</button>
+  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const client_id = params.get("client") || "default";
 
-    // 🔥 Dynamic labels
-    let title = "Save your info";
-    let label = "Notes";
-    let placeholder = "Add any preferences...";
+    const CONFIG = {
+      "barber-k8f3q2": {
+        title: "Never explain your haircut again",
+        notesLabel: "Haircut",
+        placeholder: "4 on top, 1 on sides...",
+      }
+    };
 
-    if (client_id === "barber") {
-      title = "Save your haircut for next time";
-      label = "Haircut Notes";
-      placeholder = "4 on top, 1 on sides...";
-    }
+    const cfg = CONFIG[client_id] || {};
 
-    if (client_id === "flower") {
-      title = "Save your order preferences";
-      label = "Occasion / Preferences";
-      placeholder = "Birthday, anniversary, etc...";
-    }
-
-    document.getElementById("title").innerText = title;
-    document.getElementById("notes-label").innerText = label;
-    document.getElementById("notes").placeholder = placeholder;
+    document.getElementById("title").innerText = cfg.title || "Save your info";
+    document.getElementById("notes-label").innerText = cfg.notesLabel || "Notes";
+    document.getElementById("notes").placeholder = cfg.placeholder || "Add any preferences...";
 
     async function save() {
 
@@ -60,18 +124,12 @@
         return;
       }
 
-      const { data, error } = await client
+      const { data } = await client
         .from("users")
         .insert([{ name, phone, notes }])
         .select();
 
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
       const user_id = data[0].id;
-      localStorage.setItem("user_id", user_id);
 
       await client.from("interactions").insert([{
         user_id,
@@ -79,7 +137,10 @@
         fields_shared: {}
       }]);
 
-      window.location.href = "action.html";
+      document.querySelector(".card").innerHTML = `
+        <h2>Saved</h2>
+        <p style="opacity:0.7;">Next time, no explanation needed.</p>
+      `;
     }
   </script>
 
