@@ -1,1 +1,23 @@
-<html><body>IF YOU SEE THIS IT WORKS</body></html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading...</title>
+
+  <script>
+    window.onload = function() {
+      const user = localStorage.getItem("user");
+
+      if (user) {
+        window.location.href = "action.html";
+      } else {
+        window.location.href = "capture.html";
+      }
+    };
+  </script>
+</head>
+
+<body style="font-family:sans-serif; text-align:center; padding:40px;">
+  <p>Loading...</p>
+</body>
+</html>
