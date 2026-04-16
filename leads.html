@@ -11,62 +11,69 @@
 
   <h2 id="title">Leads</h2>
 
-  <div id="list">Loading...</div>
+  <div id="list">Starting...</div>
 
   <script>
     async function loadLeads() {
 
+      document.getElementById("list").innerText = "Step 1: Init";
+
       const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
       const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
 
+      document.getElementById("list").innerText = "Step 2: Creating client";
+
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      document.getElementById("list").innerText = "Step 3: Reading URL";
 
       const params = new URLSearchParams(window.location.search);
       const client_id = params.get("client") || "default";
 
       document.getElementById("title").innerText = "Leads: " + client_id;
 
-      // 1. Get interactions
+      document.getElementById("list").innerText = "Step 4: Fetching interactions";
+
       const { data: interactions, error: iError } = await client
         .from("interactions")
         .select("*")
-        .eq("client_id", client_id)
-        .order("created_at", { ascending: false });
+        .eq("client_id", client_id);
 
       if (iError) {
-        document.getElementById("list").innerText = "Error loading interactions";
+        document.getElementById("list").innerText = "ERROR interactions: " + iError.message;
         return;
       }
+
+      document.getElementById("list").innerText = "Step 5: Found " + interactions.length + " interactions";
 
       if (!interactions.length) {
         document.getElementById("list").innerText = "No leads yet";
         return;
       }
 
-      // 2. Get user IDs
       const userIds = interactions.map(i => i.user_id);
 
-      // 3. Fetch users
+      document.getElementById("list").innerText = "Step 6: Fetching users";
+
       const { data: users, error: uError } = await client
         .from("users")
         .select("*")
         .in("id", userIds);
 
       if (uError) {
-        document.getElementById("list").innerText = "Error loading users";
+        document.getElementById("list").innerText = "ERROR users: " + uError.message;
         return;
       }
 
-      // 4. Map users
+      document.getElementById("list").innerText = "Step 7: Rendering";
+
       const userMap = {};
       users.forEach(u => userMap[u.id] = u);
 
-      // 5. Render list
       let html = "";
 
       interactions.forEach(i => {
         const user = userMap[i.user_id];
-
         if (!user) return;
 
         const time = new Date(i.created_at).toLocaleString();
