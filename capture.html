@@ -9,42 +9,59 @@
 
 <body style="font-family:sans-serif; text-align:center; padding:40px;">
 
-  <h2>TEST SAVE</h2>
+  <h2>Enter your info</h2>
 
   <input id="name" placeholder="Name"><br><br>
   <input id="phone" placeholder="Phone"><br><br>
 
-  <button onclick="save()">Save</button>
+  <button onclick="save()">Continue</button>
 
   <script>
-    alert("PAGE LOADED");
+    const SUPABASE_URL = "PASTE_URL_HERE";
+    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const params = new URLSearchParams(window.location.search);
+    const client_id = params.get("client") || "default";
 
     async function save() {
-      alert("CLICK REGISTERED");
-
-      const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
-      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
-
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       const name = document.getElementById("name").value;
       const phone = document.getElementById("phone").value;
 
+      if (!name || !phone) {
+        alert("Enter required fields");
+        return;
+      }
+
       try {
+        // 1. Save user
         const { data, error } = await client
           .from("users")
           .insert([{ name, phone }])
           .select();
 
         if (error) {
-          alert("ERROR: " + error.message);
+          alert(error.message);
           return;
         }
 
-        alert("SUCCESS");
+        const user_id = data[0].id;
+        localStorage.setItem("user_id", user_id);
+
+        // 2. Log FIRST interaction immediately
+        await client.from("interactions").insert([{
+          user_id: user_id,
+          client_id: client_id,
+          fields_shared: {}
+        }]);
+
+        // 3. Continue
+        window.location.href = "action.html";
 
       } catch (e) {
-        alert("CRASH: " + e.message);
+        alert("Error: " + e.message);
       }
     }
   </script>
