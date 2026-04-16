@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Save Contact</title>
+</head>
+
+<body style="font-family:sans-serif; text-align:center; padding:40px;">
+
+  <h2>Save contact. No typing again.</h2>
+
+  <br>
+
+  <input id="phone" placeholder="Phone number"
+    style="padding:12px; font-size:16px; width:220px;"><br><br>
+
+  <button onclick="save()"
+    style="padding:12px 20px; font-size:16px;">
+    Continue
+  </button>
+
+  <script>
+    function save() {
+      const phone = document.getElementById("phone").value;
+
+      if (!phone) {
+        alert("Enter phone number");
+        return;
+      }
+
+      localStorage.setItem("user", phone);
+
+      window.location.href = "action.html";
+    }
+  </script>
+
+</body>
+</html>
