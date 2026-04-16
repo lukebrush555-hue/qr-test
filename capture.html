@@ -17,46 +17,42 @@
   <button id="btn">Save</button>
 
   <script>
-    // 🔴 PASTE YOUR REAL VALUES HERE
-    const SUPABASE_URL = "PASTE_URL_HERE";
-    const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+    window.onload = function () {
 
-    console.log("Creating client...");
+      alert("PAGE LOADED");
 
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const SUPABASE_URL = "PASTE_URL_HERE";
+      const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
 
-    console.log("Client created:", client);
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    document.getElementById("btn").addEventListener("click", async () => {
+      document.getElementById("btn").addEventListener("click", async function () {
 
-      alert("CLICK REGISTERED");
+        alert("CLICK REGISTERED");
 
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
 
-      console.log("Sending:", { name, phone });
+        try {
+          const { data, error } = await client
+            .from("users")
+            .insert([{ name, phone }])
+            .select();
 
-      try {
-        const { data, error } = await client
-          .from("users")
-          .insert([{ name, phone }])
-          .select();
+          if (error) {
+            alert("ERROR: " + error.message);
+            return;
+          }
 
-        console.log("Response:", data, error);
+          alert("SUCCESS");
 
-        if (error) {
-          alert("ERROR: " + error.message);
-          return;
+        } catch (e) {
+          alert("CRASH: " + e.message);
         }
 
-        alert("SUCCESS");
+      });
 
-      } catch (err) {
-        alert("CRASH: " + err.message);
-        console.error(err);
-      }
-
-    });
+    };
   </script>
 
 </body>
