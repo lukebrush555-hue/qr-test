@@ -3,6 +3,9 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Share Info</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; padding:30px;">
@@ -43,20 +46,30 @@
       input.value = formatted;
     }
 
-    function save() {
+    async function save() {
       const name = document.getElementById("name").value;
       const phone = document.getElementById("phone").value.replace(/\D/g, "");
       const email = document.getElementById("email").value;
       const zip = document.getElementById("zip").value;
 
-      if (!name || !phone) {
-        alert("Name and phone required");
+      if (!name || phone.length < 10) {
+        alert("Name and valid phone required");
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify({
-        name, phone, email, zip
-      }));
+      const { data, error } = await supabase
+        .from("users")
+        .insert([{ name, phone, email, zip }])
+        .select();
+
+      if (error) {
+        alert("Error saving data");
+        console.error(error);
+        return;
+      }
+
+      const user_id = data[0].id;
+      localStorage.setItem("user_id", user_id);
 
       window.location.href = "action.html";
     }
