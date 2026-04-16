@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leads</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body style="font-family:sans-serif; padding:20px;">
+
+  <h2 id="title">Leads</h2>
+
+  <div id="list">Loading...</div>
+
+  <script>
+    async function loadLeads() {
+
+      const SUPABASE_URL = "PASTE_URL_HERE";
+      const SUPABASE_KEY = "PASTE_ANON_KEY_HERE";
+
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      const params = new URLSearchParams(window.location.search);
+      const client_id = params.get("client") || "default";
+
+      document.getElementById("title").innerText = "Leads: " + client_id;
+
+      // 1. Get interactions
+      const { data: interactions, error: iError } = await client
+        .from("interactions")
+        .select("*")
+        .eq("client_id", client_id)
+        .order("created_at", { ascending: false });
+
+      if (iError) {
+        document.getElementById("list").innerText = "Error loading interactions";
+        return;
+      }
+
+      if (!interactions.length) {
+        document.getElementById("list").innerText = "No leads yet";
+        return;
+      }
+
+      // 2. Get user IDs
+      const userIds = interactions.map(i => i.user_id);
+
+      // 3. Fetch users
+      const { data: users, error: uError } = await client
+        .from("users")
+        .select("*")
+        .in("id", userIds);
+
+      if (uError) {
+        document.getElementById("list").innerText = "Error loading users";
+        return;
+      }
+
+      // 4. Map users
+      const userMap = {};
+      users.forEach(u => userMap[u.id] = u);
+
+      // 5. Render list
+      let html = "";
+
+      interactions.forEach(i => {
+        const user = userMap[i.user_id];
+
+        if (!user) return;
+
+        const time = new Date(i.created_at).toLocaleString();
+
+        html += `
+          <div style="padding:10px; border-bottom:1px solid #ccc;">
+            <strong>${user.name || "No name"}</strong><br>
+            ${user.phone || ""}<br>
+            <small>${time}</small>
+          </div>
+        `;
+      });
+
+      document.getElementById("list").innerHTML = html;
+    }
+
+    loadLeads();
+  </script>
+
+</body>
+</html>
