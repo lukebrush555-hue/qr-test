@@ -10,50 +10,73 @@
 
 <body style="font-family:sans-serif; text-align:center; padding:30px;">
 
-  <h2>TEST MODE</h2>
+  <h2>Save contact. No typing again.</h2>
 
   <br>
 
-  <input id="name" placeholder="Full name"><br><br>
-  <input id="phone" placeholder="Phone"><br><br>
+  <input id="name" placeholder="Full name"
+    style="padding:12px; font-size:16px; width:240px;"><br><br>
 
-  <button id="btn">Continue</button>
+  <input id="phone" placeholder="Phone number"
+    style="padding:12px; font-size:16px; width:240px;"
+    inputmode="numeric"
+    oninput="formatPhone(this)"><br><br>
+
+  <input id="email" placeholder="Email"
+    style="padding:12px; font-size:16px; width:240px;"><br><br>
+
+  <input id="zip" placeholder="Zip code"
+    style="padding:12px; font-size:16px; width:240px;"
+    inputmode="numeric"><br><br>
+
+  <button id="btn"
+    style="padding:14px 24px; font-size:16px;">
+    Continue
+  </button>
 
   <script>
-    console.log("PAGE LOADED");
+    function formatPhone(input) {
+      let numbers = input.value.replace(/\D/g, "").slice(0, 10);
+
+      let formatted = "";
+      if (numbers.length > 0) formatted = numbers.substring(0, 3);
+      if (numbers.length >= 4) formatted += "-" + numbers.substring(3, 6);
+      if (numbers.length >= 7) formatted += "-" + numbers.substring(6, 10);
+
+      input.value = formatted;
+    }
 
     document.getElementById("btn").addEventListener("click", async function () {
-      alert("BUTTON CLICKED");
-
       const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
+      const phone = document.getElementById("phone").value.replace(/\D/g, "");
+      const email = document.getElementById("email").value;
+      const zip = document.getElementById("zip").value;
 
-      console.log("DATA:", name, phone);
-
-      if (!window.supabase) {
-        alert("Supabase NOT loaded");
+      if (!name || phone.length < 10) {
+        alert("Name and valid phone required");
         return;
       }
 
-      alert("Supabase loaded");
-
       try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("users")
-          .insert([{ name, phone }])
+          .insert([{ name, phone, email, zip }])
           .select();
 
-        console.log("RESULT:", data, error);
-
         if (error) {
-          alert("ERROR: " + error.message);
+          alert("Insert failed: " + error.message);
+          console.error(error);
           return;
         }
 
-        alert("SUCCESS");
+        const user_id = data[0].id;
+        localStorage.setItem("user_id", user_id);
 
+        alert("Saved successfully");
+        window.location.href = "action.html";
       } catch (e) {
-        alert("CRASH: " + e.message);
+        alert("Crash: " + e.message);
+        console.error(e);
       }
     });
   </script>
