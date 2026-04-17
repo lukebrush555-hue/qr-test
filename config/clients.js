@@ -4,7 +4,7 @@ const clients = {
     offerTitle: "TODAY’S UPGRADE",
     offer: "Free Line-Up / Edge-Up",
     subtext: "Takes 2 minutes",
-    image: "/fade.jpg", // save your image in repo as /fade.jpg
+    image: "https://lukebrush555-hue.github.io/qr-test/fade.jpg",
     cta: "Claim My Upgrade",
     colors: {
       bg: "#0F0F10",
