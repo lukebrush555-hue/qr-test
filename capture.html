@@ -1,148 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Save Your Info</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config/clients.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<style>
+:root {
+  --bg:#0F0F10;
+  --card:#1A1A1D;
+  --accent:#D4AF37;
+  --text:#FFF;
+  --sub:#B0B0B0;
+}
 
-    .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(20px);
-      padding: 30px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
+body {
+  margin:0;
+  font-family:-apple-system, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
 
-    h2 {
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
+.card {
+  width:100%;
+  max-width:400px;
+  background:var(--card);
+  border-radius:20px;
+  padding:20px;
+}
 
-    input, textarea {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(255,255,255,0.08);
-      color: white;
-      font-size: 16px;
-      outline: none;
-    }
+.header {
+  text-align:center;
+  margin-bottom:15px;
+  font-size:12px;
+  letter-spacing:2px;
+  opacity:.7;
+}
 
-    textarea {
-      height: 80px;
-      resize: none;
-    }
+img {
+  width:100%;
+  border-radius:14px;
+  margin-bottom:15px;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+.offer {
+  border:1px solid var(--accent);
+  border-radius:14px;
+  padding:15px;
+  text-align:center;
+  margin-bottom:15px;
+}
 
-    button:hover {
-      transform: scale(1.02);
-      opacity: 0.95;
-    }
+.offer small { color:var(--sub); }
 
-    .label {
-      font-size: 14px;
-      opacity: 0.7;
-      margin-bottom: 4px;
-    }
-  </style>
+.checks {
+  margin-bottom:15px;
+}
+
+.checks label {
+  display:block;
+  margin-bottom:8px;
+  color:var(--sub);
+}
+
+button {
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:var(--accent);
+  font-weight:600;
+}
+
+.skip {
+  text-align:center;
+  margin-top:10px;
+  font-size:13px;
+  color:var(--sub);
+}
+</style>
 </head>
 
 <body>
 
-  <div class="card">
-    <h2 id="title">Save your info</h2>
+<div class="card">
+  <div class="header" id="name"></div>
 
-    <input id="name" placeholder="Name">
-    <input id="phone" placeholder="Phone">
+  <img id="img">
 
-    <div id="notes-label" class="label">Notes</div>
-    <textarea id="notes"></textarea>
-
-    <button onclick="save()">Save</button>
+  <div class="offer">
+    <div id="offerTitle"></div>
+    <h3 id="offer"></h3>
+    <small id="sub"></small>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const client_id = params.get("client") || "default";
+  <div class="checks">
+    <label><input type="checkbox" checked> VIP Cuts List</label>
+    <label><input type="checkbox"> Deals & Discounts</label>
+    <label><input type="checkbox"> SMS Reminders</label>
+  </div>
 
-    const CONFIG = {
-      "barber-k8f3q2": {
-        title: "Never explain your haircut again",
-        notesLabel: "Haircut",
-        placeholder: "4 on top, 1 on sides...",
-      }
-    };
+  <button id="cta"></button>
+  <div class="skip">Not now</div>
+</div>
 
-    const cfg = CONFIG[client_id] || {};
+<script>
+const params = new URLSearchParams(location.search);
+const id = params.get("client") || "barber1";
+const c = clients[id];
 
-    document.getElementById("title").innerText = cfg.title || "Save your info";
-    document.getElementById("notes-label").innerText = cfg.notesLabel || "Notes";
-    document.getElementById("notes").placeholder = cfg.placeholder || "Add any preferences...";
+document.getElementById("name").innerText = c.name;
+document.getElementById("img").src = c.image;
+document.getElementById("offerTitle").innerText = c.offerTitle;
+document.getElementById("offer").innerText = c.offer;
+document.getElementById("sub").innerText = c.subtext;
+document.getElementById("cta").innerText = c.cta;
 
-    async function save() {
-
-      const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
-      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
-
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const notes = document.getElementById("notes").value;
-
-      if (!name || !phone) {
-        alert("Enter required fields");
-        return;
-      }
-
-      const { data } = await client
-        .from("users")
-        .insert([{ name, phone, notes }])
-        .select();
-
-      const user_id = data[0].id;
-
-      await client.from("interactions").insert([{
-        user_id,
-        client_id,
-        fields_shared: {}
-      }]);
-
-      document.querySelector(".card").innerHTML = `
-        <h2>Saved</h2>
-        <p style="opacity:0.7;">Next time, no explanation needed.</p>
-      `;
-    }
-  </script>
+document.documentElement.style.setProperty('--bg', c.colors.bg);
+document.documentElement.style.setProperty('--card', c.colors.card);
+document.documentElement.style.setProperty('--accent', c.colors.accent);
+</script>
 
 </body>
 </html>
