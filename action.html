@@ -42,12 +42,12 @@
       font-size: 12px;
       letter-spacing: 2px;
       opacity: 0.75;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .headline {
       text-align: center;
-      font-size: 26px;
+      font-size: 24px;
       margin-bottom: 18px;
     }
 
@@ -78,9 +78,7 @@
       background: rgba(255,255,255,0.03);
       color: var(--text);
       padding: 14px;
-      font-size: 15px;
       margin-bottom: 16px;
-      resize: none;
     }
 
     .btn {
@@ -90,9 +88,7 @@
       border-radius: 14px;
       background: var(--accent);
       color: #111;
-      font-size: 16px;
       font-weight: 700;
-      cursor: pointer;
       margin-bottom: 10px;
     }
 
@@ -103,7 +99,6 @@
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.03);
       color: var(--text);
-      font-size: 15px;
     }
 
     .powered {
@@ -119,7 +114,7 @@
   <div class="card">
     <div class="brand">BARBERSHOP NAME</div>
 
-    <div class="headline">Welcome back</div>
+    <div class="headline" id="welcome">Welcome back</div>
 
     <div class="saved-box">
       <div class="label">Saved haircut</div>
@@ -143,17 +138,20 @@ let user_id = localStorage.getItem("user_id");
 
 async function load() {
 
-  const { data, error } = await client
+  const { data } = await client
     .from("users")
-    .select("notes")
+    .select("notes, name")
     .eq("id", user_id)
     .single();
 
-  if (data && data.notes) {
-    document.getElementById("savedText").innerText = data.notes;
-    document.getElementById("editBox").value = data.notes;
-  } else {
-    document.getElementById("savedText").innerText = "No saved haircut yet.";
+  if (data) {
+    if (data.name) {
+      document.getElementById("welcome").innerText = "Welcome back, " + data.name;
+    }
+    if (data.notes) {
+      document.getElementById("savedText").innerText = data.notes;
+      document.getElementById("editBox").value = data.notes;
+    }
   }
 }
 
