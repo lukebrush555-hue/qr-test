@@ -2,15 +2,16 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fade Kings</title>
+  <title>Barber Page</title>
 
   <style>
     :root {
-      --bg:#0F0F10;
-      --card:#1A1A1D;
-      --accent:#D4AF37;
-      --text:#FFF;
-      --sub:#B0B0B0;
+      --bg: #0F0F10;
+      --card: #1A1A1D;
+      --accent: #D4AF37;
+      --text: #FFF;
+      --sub: #B0B0B0;
+      --line: rgba(255,255,255,0.08);
     }
 
     * { box-sizing: border-box; }
@@ -49,7 +50,7 @@
       margin-bottom: 16px;
     }
 
-    .offer {
+    .headline-box {
       border: 1px solid rgba(212,175,55,0.55);
       border-radius: 16px;
       padding: 16px;
@@ -58,29 +59,37 @@
       background: rgba(255,255,255,0.02);
     }
 
-    .offer-kicker {
+    .headline-box .kicker {
       font-size: 12px;
       letter-spacing: 1.6px;
       color: var(--sub);
       margin-bottom: 8px;
     }
 
-    .offer h2 {
-      margin: 0 0 6px;
+    .headline-box h2 {
+      margin: 0;
       font-size: 24px;
       line-height: 1.15;
     }
 
-    .offer p {
-      margin: 0;
-      color: var(--sub);
-      font-size: 14px;
-    }
-
-    .share-title {
+    .section-title {
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+    }
+
+    .notes {
+      width: 100%;
+      min-height: 120px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 14px;
+      font-size: 15px;
+      line-height: 1.4;
+      resize: none;
+      margin-bottom: 18px;
     }
 
     .checks {
@@ -95,9 +104,10 @@
       gap: 10px;
       color: var(--sub);
       font-size: 15px;
-      padding: 10px 12px;
+      padding: 12px 14px;
       border-radius: 12px;
       background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
     }
 
     .check input {
@@ -130,7 +140,7 @@
 
 <body>
   <div class="card">
-    <div class="brand">FADE KINGS</div>
+    <div class="brand">BARBERSHOP NAME</div>
 
     <img
       class="hero"
@@ -138,21 +148,24 @@
       alt="Barbershop"
     >
 
-    <div class="offer">
-      <div class="offer-kicker">TODAY’S UPGRADE</div>
-      <h2>Free Line-Up / Edge-Up</h2>
-      <p>Takes 2 minutes</p>
+    <div class="headline-box">
+      <div class="kicker">PREFERENCE</div>
+      <h2>Remember my haircut</h2>
     </div>
 
-    <div class="share-title">Choose what to share:</div>
+    <div class="section-title">Haircut details</div>
+    <textarea class="notes" placeholder="3 on top, 1 on the side, low fade, keep the widow's peak."></textarea>
+
+    <div class="section-title">Choose what to share</div>
 
     <div class="checks">
+      <label class="check"><input type="checkbox" checked> Name</label>
       <label class="check"><input type="checkbox" checked> Phone Number</label>
       <label class="check"><input type="checkbox"> Email Address</label>
-      <label class="check"><input type="checkbox"> Birthday</label>
+      <label class="check"><input type="checkbox"> ZIP Code</label>
     </div>
 
-    <button class="btn">Claim My Upgrade</button>
+    <button class="btn">Save</button>
     <div class="skip">Not now</div>
   </div>
 </body>
