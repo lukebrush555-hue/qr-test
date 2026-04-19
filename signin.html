@@ -99,6 +99,8 @@ h1 {
 
   <input class="input" id="name" placeholder="Your name">
   <input class="input" id="phone" placeholder="Phone number">
+  <input class="input" id="email" placeholder="Email">
+  <input class="input" id="zip" placeholder="ZIP Code">
 
   <button class="btn" onclick="createUser()">Save & Continue</button>
 
@@ -118,12 +120,16 @@ async function createUser() {
 
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
+  const email = document.getElementById("email").value;
+  const zip = document.getElementById("zip").value;
 
   const { data, error } = await client
     .from("users")
     .insert([{
       name: name,
-      phone: phone
+      phone: phone,
+      email: email,
+      zip: zip
     }])
     .select()
     .single();
