@@ -2,7 +2,9 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Saved Preference</title>
+  <title>Welcome Back</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -43,33 +45,10 @@
       margin-bottom: 16px;
     }
 
-    .hero {
-      width: 100%;
-      display: block;
-      border-radius: 16px;
-      margin-bottom: 16px;
-    }
-
-    .headline-box {
-      border: 1px solid rgba(212,175,55,0.55);
-      border-radius: 16px;
-      padding: 16px;
+    .headline {
       text-align: center;
+      font-size: 26px;
       margin-bottom: 18px;
-      background: rgba(255,255,255,0.02);
-    }
-
-    .headline-box .kicker {
-      font-size: 12px;
-      letter-spacing: 1.6px;
-      color: var(--sub);
-      margin-bottom: 8px;
-    }
-
-    .headline-box h2 {
-      margin: 0;
-      font-size: 24px;
-      line-height: 1.15;
     }
 
     .saved-box {
@@ -80,7 +59,7 @@
       margin-bottom: 18px;
     }
 
-    .saved-label {
+    .label {
       font-size: 13px;
       color: var(--sub);
       margin-bottom: 8px;
@@ -89,13 +68,6 @@
     .saved-text {
       font-size: 16px;
       line-height: 1.5;
-      color: var(--text);
-    }
-
-    .section-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 10px;
     }
 
     .notes {
@@ -107,9 +79,8 @@
       color: var(--text);
       padding: 14px;
       font-size: 15px;
-      line-height: 1.4;
+      margin-bottom: 16px;
       resize: none;
-      margin-bottom: 18px;
     }
 
     .btn {
@@ -128,13 +99,11 @@
     .btn-secondary {
       width: 100%;
       padding: 15px;
-      border: 1px solid var(--line);
       border-radius: 14px;
+      border: 1px solid var(--line);
       background: rgba(255,255,255,0.03);
       color: var(--text);
       font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
     }
 
     .powered {
@@ -150,31 +119,62 @@
   <div class="card">
     <div class="brand">BARBERSHOP NAME</div>
 
-    <img
-      class="hero"
-      src="https://lukebrush555-hue.github.io/qr-test/fade.jpg"
-      alt="Barbershop"
-    >
-
-    <div class="headline-box">
-      <div class="kicker">SAVED PREFERENCE</div>
-      <h2>We found your haircut</h2>
-    </div>
+    <div class="headline">Welcome back</div>
 
     <div class="saved-box">
-      <div class="saved-label">Saved haircut</div>
-      <div class="saved-text">
-        3 on top, 1 on the side, low fade, keep the widow's peak.
-      </div>
+      <div class="label">Saved haircut</div>
+      <div class="saved-text" id="savedText">Loading...</div>
     </div>
 
-    <div class="section-title">Update haircut details</div>
-    <textarea class="notes" placeholder="Adjust details here if needed..."></textarea>
+    <textarea class="notes" id="editBox" placeholder="Update your haircut..."></textarea>
 
-    <button class="btn">Use This Haircut</button>
-    <button class="btn-secondary">Update Saved Haircut</button>
+    <button class="btn" onclick="useSaved()">Use This Haircut</button>
+    <button class="btn-secondary" onclick="update()">Update Saved Haircut</button>
 
     <div class="powered">Powered by YOURNAME</div>
   </div>
+
+<script>
+const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let user_id = localStorage.getItem("user_id");
+
+async function load() {
+
+  const { data, error } = await client
+    .from("users")
+    .select("notes")
+    .eq("id", user_id)
+    .single();
+
+  if (data && data.notes) {
+    document.getElementById("savedText").innerText = data.notes;
+    document.getElementById("editBox").value = data.notes;
+  } else {
+    document.getElementById("savedText").innerText = "No saved haircut yet.";
+  }
+}
+
+async function update() {
+
+  const newNotes = document.getElementById("editBox").value;
+
+  await client
+    .from("users")
+    .update({ notes: newNotes })
+    .eq("id", user_id);
+
+  document.getElementById("savedText").innerText = newNotes;
+}
+
+function useSaved() {
+  alert("Haircut confirmed");
+}
+
+load();
+</script>
+
 </body>
 </html>
