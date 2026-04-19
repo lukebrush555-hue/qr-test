@@ -4,6 +4,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign In</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root {
   --bg:#0F0F10;
@@ -11,6 +13,7 @@
   --accent:#D4AF37;
   --text:#FFF;
   --sub:#B0B0B0;
+  --line: rgba(255,255,255,0.08);
 }
 
 * { box-sizing: border-box; }
@@ -55,42 +58,14 @@ h1 {
   margin-bottom: 20px;
 }
 
-.social-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 14px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.apple {
-  background: #000;
-  color: #fff;
-}
-
-.google {
-  background: #fff;
-  color: #111;
-}
-
-.divider {
-  text-align: center;
-  font-size: 12px;
-  color: var(--sub);
-  margin: 16px 0;
-}
-
 .input {
   width: 100%;
   padding: 14px;
   margin-bottom: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: #111;
-  color: #fff;
-  font-size: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
 }
 
 .btn {
@@ -102,7 +77,6 @@ h1 {
   color: #111;
   font-size: 16px;
   font-weight: 700;
-  margin-top: 6px;
 }
 
 .micro {
@@ -110,13 +84,6 @@ h1 {
   font-size: 11px;
   color: var(--sub);
   margin-top: 12px;
-}
-
-.powered {
-  text-align: center;
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  margin-top: 6px;
 }
 </style>
 </head>
@@ -128,23 +95,45 @@ h1 {
   <div class="brand">BARBERSHOP NAME</div>
 
   <h1>Save once</h1>
-  <div class="sub">Placeholder text goes here</div>
+  <div class="sub">Next time, it’s automatic</div>
 
-  <button class="social-btn apple">Continue with Apple</button>
-  <button class="social-btn google">Continue with Google</button>
+  <input class="input" id="name" placeholder="Your name">
+  <input class="input" id="phone" placeholder="Phone number">
 
-  <div class="divider">— or —</div>
+  <button class="btn" onclick="createUser()">Save & Continue</button>
 
-  <input class="input" placeholder="Name">
-  <input class="input" placeholder="Phone">
-  <input class="input" placeholder="Email">
-
-  <button class="btn">Save & Continue</button>
-
-  <div class="micro">Placeholder consent text</div>
-  <div class="powered">Powered by YOURNAME</div>
+  <div class="micro">Used only to make your visits easier</div>
 
 </div>
+
+<script>
+const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
+const SUPABASE_KEY = "YOUR_ANON_KEY";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const client_id = params.get("client") || "default";
+
+async function createUser() {
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+
+  const { data, error } = await client
+    .from("users")
+    .insert([{
+      name: name,
+      phone: phone
+    }])
+    .select()
+    .single();
+
+  if (data) {
+    localStorage.setItem("user_id", data.id);
+    window.location.href = "capture.html?client=" + client_id;
+  }
+}
+</script>
 
 </body>
 </html>
