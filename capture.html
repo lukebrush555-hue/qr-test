@@ -64,13 +64,16 @@
     .headline-box h2 {
       margin: 0;
       font-size: 24px;
-      line-height: 1.15;
     }
 
-    .section-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 10px;
+    .input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      margin-bottom: 12px;
     }
 
     .notes {
@@ -81,9 +84,6 @@
       background: rgba(255,255,255,0.03);
       color: var(--text);
       padding: 14px;
-      font-size: 15px;
-      line-height: 1.4;
-      resize: none;
       margin-bottom: 18px;
     }
 
@@ -97,19 +97,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      color: var(--sub);
-      font-size: 15px;
-      padding: 12px 14px;
+      padding: 12px;
       border-radius: 12px;
       background: rgba(255,255,255,0.03);
-      border: 1px solid var(--line);
-    }
-
-    .check input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
-      flex: 0 0 auto;
     }
 
     .btn {
@@ -119,44 +109,35 @@
       border-radius: 14px;
       background: var(--accent);
       color: #111;
-      font-size: 16px;
       font-weight: 700;
-      cursor: pointer;
-    }
-
-    .skip {
-      text-align: center;
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--sub);
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <div class="brand">BARBERSHOP NAME</div>
+<div class="card">
 
-    <div class="headline-box">
-      <div class="kicker">PREFERENCE</div>
-      <h2>Remember my haircut</h2>
-    </div>
+  <div class="brand">BARBERSHOP NAME</div>
 
-    <div class="section-title">Haircut details</div>
-    <textarea class="notes" placeholder="3 on top, 1 on the side, low fade, keep the widow's peak."></textarea>
-
-    <div class="section-title">Choose what to share</div>
-
-    <div class="checks">
-      <label class="check"><input type="checkbox" checked> Name</label>
-      <label class="check"><input type="checkbox" checked> Phone</label>
-      <label class="check"><input type="checkbox"> Email</label>
-      <label class="check"><input type="checkbox"> ZIP</label>
-    </div>
-
-    <button class="btn" onclick="save()">Save</button>
-    <div class="skip">Not now</div>
+  <div class="headline-box">
+    <div class="kicker">PREFERENCE</div>
+    <h2>Remember my haircut</h2>
   </div>
+
+  <input class="input" id="name" placeholder="Your name">
+
+  <textarea class="notes" id="notes" placeholder="3 on top, 1 on the side..."></textarea>
+
+  <div class="checks">
+    <label class="check"><input type="checkbox" checked> Name</label>
+    <label class="check"><input type="checkbox" checked> Phone</label>
+    <label class="check"><input type="checkbox"> Email</label>
+    <label class="check"><input type="checkbox"> ZIP</label>
+  </div>
+
+  <button class="btn" onclick="save()">Save</button>
+
+</div>
 
 <script>
 const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
@@ -170,25 +151,21 @@ let user_id = localStorage.getItem("user_id");
 
 async function save() {
 
-  const notes = document.querySelector(".notes").value;
-
-  const checks = document.querySelectorAll(".check input");
-  const fields_shared = {
-    name: checks[0].checked,
-    phone: checks[1].checked,
-    email: checks[2].checked,
-    zip: checks[3].checked
-  };
+  const name = document.getElementById("name").value;
+  const notes = document.getElementById("notes").value;
 
   await client
     .from("users")
-    .update({ notes: notes })
+    .update({
+      notes: notes,
+      name: name
+    })
     .eq("id", user_id);
 
   await client.from("interactions").insert([{
-    user_id: user_id,
-    client_id: client_id,
-    fields_shared: fields_shared
+    user_id,
+    client_id,
+    fields_shared: {}
   }]);
 
   window.location.href = "action.html";
