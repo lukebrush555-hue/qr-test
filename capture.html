@@ -2,7 +2,9 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barber Page</title>
+  <title>Preference</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -40,13 +42,6 @@
       font-size: 12px;
       letter-spacing: 2px;
       opacity: 0.75;
-      margin-bottom: 16px;
-    }
-
-    .hero {
-      width: 100%;
-      display: block;
-      border-radius: 16px;
       margin-bottom: 16px;
     }
 
@@ -142,12 +137,6 @@
   <div class="card">
     <div class="brand">BARBERSHOP NAME</div>
 
-    <img
-      class="hero"
-      src="https://lukebrush555-hue.github.io/qr-test/fade.jpg"
-      alt="Barbershop"
-    >
-
     <div class="headline-box">
       <div class="kicker">PREFERENCE</div>
       <h2>Remember my haircut</h2>
@@ -160,13 +149,51 @@
 
     <div class="checks">
       <label class="check"><input type="checkbox" checked> Name</label>
-      <label class="check"><input type="checkbox" checked> Phone Number</label>
-      <label class="check"><input type="checkbox"> Email Address</label>
-      <label class="check"><input type="checkbox"> ZIP Code</label>
+      <label class="check"><input type="checkbox" checked> Phone</label>
+      <label class="check"><input type="checkbox"> Email</label>
+      <label class="check"><input type="checkbox"> ZIP</label>
     </div>
 
-    <button class="btn">Save</button>
+    <button class="btn" onclick="save()">Save</button>
     <div class="skip">Not now</div>
   </div>
+
+<script>
+const SUPABASE_URL = "https://uwxnoxpnhzpeyfcbklci.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3eG5veHBuaHpwZXlmY2JrbGNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNDQxNjUsImV4cCI6MjA5MTkyMDE2NX0.mu9uvIEGVuOTvYqNl9XGG9NcQTn43pVpAfTiNEPbqEo";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(window.location.search);
+const client_id = params.get("client") || "default";
+
+let user_id = localStorage.getItem("user_id");
+
+async function save() {
+
+  const notes = document.querySelector(".notes").value;
+
+  const checks = document.querySelectorAll(".check input");
+  const fields_shared = {
+    name: checks[0].checked,
+    phone: checks[1].checked,
+    email: checks[2].checked,
+    zip: checks[3].checked
+  };
+
+  await client
+    .from("users")
+    .update({ notes: notes })
+    .eq("id", user_id);
+
+  await client.from("interactions").insert([{
+    user_id: user_id,
+    client_id: client_id,
+    fields_shared: fields_shared
+  }]);
+
+  window.location.href = "action.html";
+}
+</script>
+
 </body>
 </html>
